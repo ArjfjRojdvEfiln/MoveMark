@@ -1,0 +1,87 @@
+
+<div id="erd"></div>
+<style>
+#erd svg { max-width: 100%; }
+</style>
+<script type="module">
+import mermaid from 'https://esm.sh/mermaid@11/dist/mermaid.esm.min.mjs';
+const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+await document.fonts.ready;
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'base',
+  fontFamily: '"Anthropic Sans", sans-serif',
+  themeVariables: {
+    darkMode: dark,
+    fontSize: '13px',
+    fontFamily: '"Anthropic Sans", sans-serif',
+    lineColor: dark ? '#9c9a92' : '#73726c',
+    textColor: dark ? '#c2c0b6' : '#3d3d3a',
+  },
+});
+const { svg } = await mermaid.render('erd-svg', `erDiagram
+  users ||--o{ favorites : "收藏"
+  users ||--o{ notifications : "接收"
+  events ||--o{ favorites : "被收藏"
+  events ||--o{ notifications : "触发"
+
+  users {
+    int id PK
+    string username
+    string email
+    string password_hash
+    string avatar_url
+    datetime created_at
+  }
+  events {
+    int id PK
+    string name
+    string sport_type
+    string province
+    string city
+    date race_date
+    date reg_deadline
+    json distance_groups
+    string status
+    string source_url
+    string cover_img
+    datetime created_at
+  }
+  favorites {
+    int id PK
+    int user_id FK
+    int event_id FK
+    datetime created_at
+  }
+  notifications {
+    int id PK
+    int user_id FK
+    int event_id FK
+    string type
+    string content
+    bool is_read
+    datetime created_at
+  }
+`);
+document.getElementById('erd').innerHTML = svg;
+
+document.querySelectorAll('#erd svg .node').forEach(node => {
+  const firstPath = node.querySelector('path[d]');
+  if (!firstPath) return;
+  const d = firstPath.getAttribute('d');
+  const nums = d.match(/-?[\d.]+/g)?.map(Number);
+  if (!nums || nums.length < 8) return;
+  const xs = [nums[0], nums[2], nums[4], nums[6]];
+  const ys = [nums[1], nums[3], nums[5], nums[7]];
+  const x = Math.min(...xs), y = Math.min(...ys);
+  const w = Math.max(...xs) - x, h = Math.max(...ys) - y;
+  const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  rect.setAttribute('x', x); rect.setAttribute('y', y);
+  rect.setAttribute('width', w); rect.setAttribute('height', h);
+  rect.setAttribute('rx', '8');
+  for (const a of ['fill', 'stroke', 'stroke-width', 'class', 'style']) {
+    if (firstPath.hasAttribute(a)) rect.setAttribute(a, firstPath.getAttribute(a));
+  }
+  firstPath.replaceWith(rect);
+});
+</script>
