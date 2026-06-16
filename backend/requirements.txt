@@ -13,3 +13,4 @@ httpx==0.27.0
 python-dotenv==1.0.1
 oss2==2.18.5
 rocketmq-client-python==2.0.0
+bcrypt==4.0.1
