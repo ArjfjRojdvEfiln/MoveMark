@@ -72,9 +72,9 @@ async def sync_events_to_es(events: list[Event], es):
 
     resp = await es.bulk(operations=actions)
     if resp.get("errors"):
-        print(f"  ⚠️  ES bulk有错误")
+        print(f"ES bulk有错误")
     else:
-        print(f"  ✅ ES同步 {len(events)} 条成功")
+        print(f"ES同步 {len(events)} 条成功")
 
 
 async def run_sync(use_mock: bool = False):
@@ -83,7 +83,7 @@ async def run_sync(use_mock: bool = False):
     use_mock=True: 使用模拟数据（爬虫被反爬时的备用方案）
     """
     print("=" * 50)
-    print("🚀 MoveMark 数据同步开始")
+    print("MoveMark 数据同步开始")
     print("=" * 50)
 
     # 1. 初始化Redis
@@ -100,30 +100,30 @@ async def run_sync(use_mock: bool = False):
     all_raw_events = []
 
     if use_mock:
-        print("📦 使用模拟数据...")
+        print("使用模拟数据...")
         all_raw_events = generate_mock_events()
     else:
         # 爬美丽跑（API方式，比较稳定）
-        print("\n📡 爬取美丽跑数据...")
+        print("\n爬取美丽跑数据...")
         try:
             meilijog = MeilijogCrawler()
             events = await meilijog.crawl(max_pages=5)
             all_raw_events.extend(events)
-            print(f"  美丽跑爬取完成: {len(events)} 条")
+            print(f"美丽跑爬取完成: {len(events)} 条")
         except Exception as e:
-            print(f"  ❌ 美丽跑爬取失败: {e}")
+            print(f"美丽跑爬取失败: {e}")
 
         # 爬跑步天地
-        print("\n📡 爬取跑步天地数据...")
+        print("\n 爬取跑步天地数据...")
         try:
             pao8 = Pao8Crawler()
             events = await pao8.crawl(max_pages=5)
             all_raw_events.extend(events)
-            print(f"  跑步天地爬取完成: {len(events)} 条")
+            print(f"跑步天地爬取完成: {len(events)} 条")
         except Exception as e:
-            print(f"  ❌ 跑步天地爬取失败: {e}")
+            print(f"跑步天地爬取失败: {e}")
 
-    print(f"\n📊 共获取原始数据: {len(all_raw_events)} 条")
+    print(f"\n 共获取原始数据: {len(all_raw_events)} 条")
 
     # 4. 布隆过滤器去重 + 入库
     new_count = 0
@@ -136,7 +136,7 @@ async def run_sync(use_mock: bool = False):
             if not source_id:
                 continue
 
-            # ⚡ 布隆过滤器快速判断：已存在则跳过
+            # 布隆过滤器快速判断：已存在则跳过
             if await crawler_bloom.exists(source_id, redis_client):
                 skip_count += 1
                 continue
@@ -180,11 +180,11 @@ async def run_sync(use_mock: bool = False):
                     await crawler_bloom.add(source_id, redis_client)  # 补充进布隆
                     skip_count += 1
                 else:
-                    print(f"  ❌ 入库失败: {source_id} - {e}")
+                    print(f"入库失败: {source_id} - {e}")
                 continue
 
         await session.commit()
-        print(f"\n✅ MySQL入库完成: 新增{new_count}条, 跳过{skip_count}条")
+        print(f"\n MySQL入库完成: 新增{new_count}条, 跳过{skip_count}条")
 
         # 同时把event id也加入event_id_bloom（缓存穿透防护用）
         if new_events_for_es:
@@ -193,14 +193,14 @@ async def run_sync(use_mock: bool = False):
 
     # 6. 同步到ES
     if new_events_for_es:
-        print(f"\n📡 同步到Elasticsearch...")
+        print(f"\n 同步到Elasticsearch...")
         await sync_events_to_es(new_events_for_es, es_client)
 
     await redis_client.aclose()
     await es_client.close()
 
     print("\n" + "=" * 50)
-    print(f"🎉 同步完成！新增: {new_count} 条")
+    print(f"同步完成！新增: {new_count} 条")
     print("=" * 50)
 
 

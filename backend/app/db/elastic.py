@@ -49,9 +49,9 @@ async def init_es_index():
                 mappings=EVENT_MAPPING["mappings"],
                 settings=EVENT_MAPPING["settings"],
             )
-            print(f"✅ ES索引 {EVENT_INDEX} 创建成功")
+            print(f"ES索引 {EVENT_INDEX} 创建成功")
         else:
-            print(f"ℹ️  ES索引 {EVENT_INDEX} 已存在")
+            print(f"ES索引 {EVENT_INDEX} 已存在")
     except Exception as e:
-        print(f"❌ ES索引初始化失败: {e}")
+        print(f"ES索引初始化失败: {e}")
         raise

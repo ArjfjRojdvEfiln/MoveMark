@@ -7,7 +7,7 @@ async def init():
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
 
-        print("✅ 数据库表创建成功")
+        print("数据库表创建成功")
     finally:
         # 关闭所有数据库连接
         await engine.dispose()

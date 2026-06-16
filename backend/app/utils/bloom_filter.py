@@ -30,7 +30,7 @@ class BloomFilter:
         # 哈希函数个数：k = m/n * ln2
         self.hash_count = int((self.bit_size / capacity) * math.log(2))
 
-        print(f"🔧 布隆过滤器初始化: key={redis_key}, 位数组={self.bit_size}, 哈希函数={self.hash_count}个")
+        print(f"布隆过滤器初始化: key={redis_key}, 位数组={self.bit_size}, 哈希函数={self.hash_count}个")
 
     def _get_bit_positions(self, value: str) -> list[int]:
         """用不同的seed生成多个哈希值，对应位数组中的多个位置"""

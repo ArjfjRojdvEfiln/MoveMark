@@ -44,10 +44,10 @@ class BaseCrawler(ABC):
                         print(f"第 {page} 页无数据，停止")
                         break
                     all_events.extend(events)
-                    print(f"  ✅ 获取 {len(events)} 条")
+                    print(f" 获取 {len(events)} 条")
                     await asyncio.sleep(self.request_delay)  # 礼貌等待
                 except Exception as e:
-                    print(f"  ❌ 第 {page} 页出错: {e}")
+                    print(f" 第 {page} 页出错: {e}")
                     continue
         return all_events
 
